@@ -1,30 +1,10 @@
+from se_module import SELayer
 import torch.nn as nn
 from torchvision.models import ResNet
-
-__all__ = ['ResNet', 'se_resnet18', 'se_resnet34', 'se_resnet50', 'se_resnet101',
-           'se_resnet152']
 
 
 def conv3x3(in_planes, out_planes, stride=1):
     return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride, padding=1, bias=False)
-
-
-class SELayer(nn.Module):
-    def __init__(self, channel, reduction):
-        super(SELayer, self).__init__()
-        self.avg_pool = nn.AdaptiveAvgPool2d(1)
-        self.fc = nn.Sequential(
-                nn.Linear(channel, reduction),
-                nn.ReLU(inplace=True),
-                nn.Linear(reduction, channel),
-                nn.Sigmoid()
-        )
-
-    def forward(self, x):
-        b, c, _, _ = x.size()
-        y = self.avg_pool(x).view(b, c)
-        y = self.fc(y).view(b, c, 1, 1)
-        return x * y
 
 
 class SEBasicBlock(nn.Module):
@@ -101,51 +81,51 @@ class SEBottleneck(nn.Module):
         return out
 
 
-def se_resnet18(**kwargs):
+def se_resnet18(num_classes):
     """Constructs a ResNet-18 model.
 
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
-    model = ResNet(SEBasicBlock, [2, 2, 2, 2], **kwargs)
+    model = ResNet(SEBasicBlock, [2, 2, 2, 2], num_classes=num_classes)
     return model
 
 
-def se_resnet34(**kwargs):
+def se_resnet34(num_classes):
     """Constructs a ResNet-34 model.
 
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
-    model = ResNet(SEBasicBlock, [3, 4, 6, 3], **kwargs)
+    model = ResNet(SEBasicBlock, [3, 4, 6, 3], num_classes=num_classes)
     return model
 
 
-def se_resnet50(**kwargs):
+def se_resnet50(num_classes):
     """Constructs a ResNet-50 model.
 
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
-    model = ResNet(SEBottleneck, [3, 4, 6, 3], **kwargs)
+    model = ResNet(SEBottleneck, [3, 4, 6, 3], num_classes=num_classes)
     return model
 
 
-def se_resnet101(**kwargs):
+def se_resnet101(num_classes):
     """Constructs a ResNet-101 model.
 
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
-    model = ResNet(SEBottleneck, [3, 4, 23, 3], **kwargs)
+    model = ResNet(SEBottleneck, [3, 4, 23, 3], num_classes=num_classes)
     return model
 
 
-def se_resnet152(**kwargs):
+def se_resnet152(num_classes):
     """Constructs a ResNet-152 model.
 
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
-    model = ResNet(SEBottleneck, [3, 8, 36, 3], **kwargs)
+    model = ResNet(SEBottleneck, [3, 8, 36, 3], num_classes=num_classes)
     return model
