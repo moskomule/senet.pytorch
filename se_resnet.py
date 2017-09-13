@@ -88,6 +88,7 @@ def se_resnet18(num_classes):
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
     model = ResNet(SEBasicBlock, [2, 2, 2, 2], num_classes=num_classes)
+    model.avgpool = nn.AdaptiveAvgPool2d(1)
     return model
 
 
@@ -98,6 +99,7 @@ def se_resnet34(num_classes):
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
     model = ResNet(SEBasicBlock, [3, 4, 6, 3], num_classes=num_classes)
+    model.avgpool = nn.AdaptiveAvgPool2d(1)
     return model
 
 
@@ -108,6 +110,7 @@ def se_resnet50(num_classes):
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
     model = ResNet(SEBottleneck, [3, 4, 6, 3], num_classes=num_classes)
+    model.avgpool = nn.AdaptiveAvgPool2d(1)
     return model
 
 
@@ -118,6 +121,7 @@ def se_resnet101(num_classes):
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
     model = ResNet(SEBottleneck, [3, 4, 23, 3], num_classes=num_classes)
+    model.avgpool = nn.AdaptiveAvgPool2d(1)
     return model
 
 
@@ -128,4 +132,5 @@ def se_resnet152(num_classes):
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
     model = ResNet(SEBottleneck, [3, 8, 36, 3], num_classes=num_classes)
+    model.avgpool = nn.AdaptiveAvgPool2d(1)
     return model
