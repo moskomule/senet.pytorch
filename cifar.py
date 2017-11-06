@@ -4,7 +4,7 @@ import torch.optim as optim
 from torchvision import datasets, transforms
 
 from se_resnet import se_resnet20
-from utils import Trainer
+from utils import Trainer, StepLR
 
 
 def main(batch_size=64):
@@ -27,9 +27,11 @@ def main(batch_size=64):
             datasets.CIFAR10('data/cifar10', train=False, transform=transform_test),
             batch_size=batch_size, shuffle=True)
     se_resnet = se_resnet20(num_classes=10)
-    optimizer = optim.Adam(params=se_resnet.parameters(), lr=1e-3, weight_decay=1e-4)
+    optimizer = optim.SGD(params=se_resnet.parameters(), lr=1e-1, momentum=0.9,
+                          weight_decay=1e-4)
+    scheduler = StepLR(optimizer, 80, 0.1)
     trainer = Trainer(se_resnet, optimizer, F.cross_entropy)
-    trainer.loop(200, train_loader, test_loader)
+    trainer.loop(200, train_loader, test_loader, scheduler)
 
 
 if __name__ == '__main__':

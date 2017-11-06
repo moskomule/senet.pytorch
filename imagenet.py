@@ -1,6 +1,6 @@
 import os
 from se_resnet import se_resnet50
-from utils import Trainer
+from utils import Trainer, StepLR
 
 import torch
 import torch.nn.functional as F
@@ -32,9 +32,10 @@ def main(batch_size, data_root):
     test_loader = torch.utils.data.DataLoader(
             val, batch_size=batch_size, shuffle=True, num_workers=8)
     se_resnet = se_resnet50(num_classes=1000)
-    optimizer = optim.Adam(params=se_resnet.parameters(), lr=1e-3, weight_decay=1e-4)
+    optimizer = optim.SGD(params=se_resnet.parameters(), lr=1e-1, momentum=0.9, weight_decay=1e-4)
+    scheduler = StepLR(optimizer, 20, gamma=0.1)
     trainer = Trainer(se_resnet, optimizer, F.cross_entropy, save_dir=".")
-    trainer.loop(100, train_loader, test_loader)
+    trainer.loop(50, train_loader, test_loader)
 
 
 if __name__ == '__main__':
