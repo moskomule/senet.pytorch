@@ -19,7 +19,7 @@ For SE-Inception-v3, the input size is required to be 299x299 [as original Incep
 
 |                  | ResNet20       | SE-ResNet20    |
 |:-------------    | :------------- | :------------- |
-|max. test accuracy|  92%           | -              |
+|max. test accuracy|  92%           | 93%            |
 
 ### SE-ResNet50/ImageNet
 
