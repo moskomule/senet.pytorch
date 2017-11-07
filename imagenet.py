@@ -32,10 +32,10 @@ def main(batch_size, data_root):
     test_loader = torch.utils.data.DataLoader(
             val, batch_size=batch_size, shuffle=True, num_workers=8)
     se_resnet = se_resnet50(num_classes=1000)
-    optimizer = optim.SGD(params=se_resnet.parameters(), lr=1e-1, momentum=0.9, weight_decay=1e-4)
-    scheduler = StepLR(optimizer, 20, gamma=0.1)
+    optimizer = optim.SGD(params=se_resnet.parameters(), lr=0.6, momentum=0.9, weight_decay=1e-4)
+    scheduler = StepLR(optimizer, 30, gamma=0.1)
     trainer = Trainer(se_resnet, optimizer, F.cross_entropy, save_dir=".")
-    trainer.loop(50, train_loader, test_loader)
+    trainer.loop(100, train_loader, test_loader, scheduler)
 
 
 if __name__ == '__main__':

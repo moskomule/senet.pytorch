@@ -58,7 +58,7 @@ class Trainer(object):
 
     def save(self, epoch, **kwargs):
         if self.save_dir:
-            name = "-".join([f"{k}_{v}" for k, v in kwargs.items()]) + ".pkl"
+            name = f"weight-{epoch}-" + "-".join([f"{k}_{v}" for k, v in kwargs.items()]) + ".pkl"
             torch.save({"weight": self.model.state_dict()},
                        os.path.join(self.save_dir, name))
 
