@@ -10,10 +10,11 @@ Now SE-ResNet (18, 34, 50, 101, 152/20, 32) and SE-Inception-v3 are implemented.
 * `python imagenet.py IMAGENET_ROOT` runs SE-ResNet50 with ImageNet(2012) dataset.
     + You need to prepare dataset by yourself
     + First download files and then follow the [instruction](https://github.com/facebook/fb.resnet.torch/blob/master/INSTALL.md#download-the-imagenet-dataset).
+    + The number of GPUs and workers, the learning rate is fixed so check and change them if needed.
 
 For SE-Inception-v3, the input size is required to be 299x299 [as original Inception](https://github.com/tensorflow/models/tree/master/inception).
 
-## result
+## Result
 
 ### SE-ResNet20/Cifar10
 
@@ -23,11 +24,18 @@ For SE-Inception-v3, the input size is required to be 299x299 [as original Incep
 
 ### SE-ResNet50/ImageNet
 
+*The initial learning rate and mini-batch size are different from the original version because of my computational resource* (0.6 to 0.1 and 1024 to 128 respectively).
+
 |                  | ResNet         | SE-ResNet      |
 |:-------------    | :------------- | :------------- |
-|max. test accuracy|  -             | -              |
+|max. test accuracy(top1)|  79.26 %(*)             | 71.66 %(**)          |
 
-## references
+
++ (*): He, K., Zhang, X., Ren, S., & Sun, J. (2015). Deep Residual Learning for Image Recognition.
+
++ (**): If you need this weight, let me know.
+
+## References
 
 [paper](https://arxiv.org/pdf/1709.01507.pdf)
 

@@ -3,6 +3,7 @@ from se_resnet import se_resnet50
 from utils import Trainer, StepLR
 
 import torch
+from torch import nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torchvision import datasets, transforms
@@ -31,7 +32,8 @@ def main(batch_size, data_root):
             train, batch_size=batch_size, shuffle=True, num_workers=8)
     test_loader = torch.utils.data.DataLoader(
             val, batch_size=batch_size, shuffle=True, num_workers=8)
-    se_resnet = se_resnet50(num_classes=1000)
+    _se_resnet = se_resnet50(num_classes=1000)
+    se_resnet = nn.DataParallel(_se_resnet, device_ids=[0, 1])
     optimizer = optim.SGD(params=se_resnet.parameters(), lr=0.6, momentum=0.9, weight_decay=1e-4)
     scheduler = StepLR(optimizer, 30, gamma=0.1)
     trainer = Trainer(se_resnet, optimizer, F.cross_entropy, save_dir=".")
@@ -43,6 +45,6 @@ if __name__ == '__main__':
 
     p = argparse.ArgumentParser()
     p.add_argument("root", help="imagenet data root")
-    p.add_argument("--batch_size", default=64, type=int)
+    p.add_argument("--batch_size", default=128, type=int)
     args = p.parse_args()
     main(args.batch_size, args.root)
