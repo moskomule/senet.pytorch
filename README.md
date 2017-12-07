@@ -18,6 +18,10 @@ For SE-Inception-v3, the input size is required to be 299x299 [as original Incep
 
 ### SE-ResNet20/Cifar10
 
+```
+python cifar.py [--baseline]
+```
+
 |                  | ResNet20       | SE-ResNet20    |
 |:-------------    | :------------- | :------------- |
 |max. test accuracy|  92%           | 93%            |
@@ -33,7 +37,12 @@ For SE-Inception-v3, the input size is required to be 299x299 [as original Incep
 
 + (*): He, K., Zhang, X., Ren, S., & Sun, J. (2015). Deep Residual Learning for Image Recognition.
 
-+ (**): If you need this weight, let me know.
++ (**): I share [this weight (training after 100 epochs)](https://drive.google.com/file/d/1WhBKRKIRtd-Fsrj3hx_WNycdsZSbC9Ep).
+
+```python
+senet = se_resnet50(num_classes=1000)
+senet.load_state_dict(torch.load("weight.pkl"))
+```
 
 ## References
 
