@@ -4,10 +4,11 @@ import torch.optim as optim
 from torchvision import datasets, transforms
 
 from se_resnet import se_resnet20
+from baseline import resnet20
 from utils import Trainer, StepLR
 
 
-def main(batch_size=64):
+def main(batch_size, baseline, reduction):
     transform_train = transforms.Compose([
         transforms.RandomCrop(32, padding=4),
         transforms.RandomHorizontalFlip(),
@@ -26,13 +27,23 @@ def main(batch_size=64):
     test_loader = torch.utils.data.DataLoader(
             datasets.CIFAR10('data/cifar10', train=False, transform=transform_test),
             batch_size=batch_size, shuffle=True)
-    se_resnet = se_resnet20(num_classes=10)
-    optimizer = optim.SGD(params=se_resnet.parameters(), lr=1e-1, momentum=0.9,
+    if baseline:
+        model = resnet20()
+    else:
+        model = se_resnet20(num_classes=10, reduction=reduction)
+    optimizer = optim.SGD(params=model.parameters(), lr=1e-1, momentum=0.9,
                           weight_decay=1e-4)
     scheduler = StepLR(optimizer, 80, 0.1)
-    trainer = Trainer(se_resnet, optimizer, F.cross_entropy)
+    trainer = Trainer(model, optimizer, F.cross_entropy)
     trainer.loop(200, train_loader, test_loader, scheduler)
 
 
 if __name__ == '__main__':
-    main()
+    import argparse
+
+    p = argparse.ArgumentParser()
+    p.add_argument("--batchsize", type=int, default=64)
+    p.add_argument("--reduction", type=int, default=16)
+    p.add_argument("--baseline", action="store_true")
+    args = p.parse_args()
+    main(args.batchsize, args.baseline, args.reduction)
