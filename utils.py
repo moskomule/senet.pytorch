@@ -30,7 +30,7 @@ class Trainer(object):
             output = self.model(data)
             loss = self.loss_f(output, target)
             loop_loss.append(loss.data[0] / len(data_loader))
-            correct.append((output.data.max(1)[1] == target.data).sum() / len(data_loader.dataset))
+            correct.append(float((output.data.max(1)[1] == target.data).sum()) / len(data_loader.dataset))
             if is_train:
                 loss.backward()
                 self.optimizer.step()
