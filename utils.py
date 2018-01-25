@@ -30,12 +30,12 @@ class Trainer(object):
             output = self.model(data)
             loss = self.loss_f(output, target)
             loop_loss.append(loss.data[0] / len(data_loader))
-            correct.append((output.data.max(1)[1] == target.data).sum() / len(data_loader.dataset))
+            correct.append(float((output.data.max(1)[1] == target.data).sum()) / len(data_loader.dataset))
             if is_train:
                 loss.backward()
                 self.optimizer.step()
         mode = "train" if is_train else "test"
-        print(f">>>[{mode}] loss: {sum(loop_loss):.2f}/accuracy: {sum(correct):.2%}")
+        print(">>>[{}] loss: {:.2f}/accuracy: {:.2%}".format(mode, sum(loop_loss), sum(correct)))
         return loop_loss, correct
 
     def train(self, data_loader):
@@ -50,17 +50,19 @@ class Trainer(object):
         for ep in range(1, epochs + 1):
             if scheduler is not None:
                 scheduler.step()
-            print(f"epochs: {ep}")
+            print("epochs: {}".format(ep))
             self.train(train_data)
             self.test(test_data)
             if ep % self.save_freq:
                 self.save(ep)
 
     def save(self, epoch, **kwargs):
-        if self.save_dir:
-            name = f"weight-{epoch}-" + "-".join([f"{k}_{v}" for k, v in kwargs.items()]) + ".pkl"
-            torch.save({"weight": self.model.state_dict()},
-                       os.path.join(self.save_dir, name))
+        model_folder = "checkpoints/"
+        model_out_path = model_folder + "model_epoch_{}.pth".format(epoch)
+        state = {"epoch": epoch, "weight": self.model.state_dict()}
+        if not os.path.exists(model_folder):
+            os.makedirs(model_folder)
+        torch.save(state, model_out_path)
 
 
 # copied from pytorch's master
