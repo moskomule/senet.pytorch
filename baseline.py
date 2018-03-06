@@ -3,7 +3,6 @@ ResNet for CIFAR dataset proposed in He+15, p 7. and
 https://github.com/facebook/fb.resnet.torch/blob/master/models/resnet.lua
 """
 
-import math
 import torch.nn as nn
 
 
@@ -21,8 +20,11 @@ class BasicBlock(nn.Module):
         self.relu = nn.ReLU(inplace=True)
         self.conv2 = conv3x3(planes, planes)
         self.bn2 = nn.BatchNorm2d(planes)
-        self.downsample = nn.Sequential(nn.Conv2d(inplanes, planes, kernel_size=1, stride=stride, bias=False),
-                                        nn.BatchNorm2d(planes))
+        if inplanes != planes:
+            self.downsample = nn.Sequential(nn.Conv2d(inplanes, planes, kernel_size=1, stride=stride, bias=False),
+                                            nn.BatchNorm2d(planes))
+        else:
+            self.downsample = lambda x: x
         self.stride = stride
 
     def forward(self, x):
@@ -43,10 +45,14 @@ class BasicBlock(nn.Module):
 class PreActBasicBlock(BasicBlock):
     def __init__(self, inplanes, planes, stride):
         super(PreActBasicBlock, self).__init__(inplanes, planes, stride)
+        if inplanes != planes:
+            self.downsample = nn.Sequential(nn.Conv2d(inplanes, planes, kernel_size=1, stride=stride, bias=False))
+        else:
+            self.downsample = lambda x: x
         self.bn1 = nn.BatchNorm2d(inplanes)
 
     def forward(self, x):
-        residual = self.downsample(x) if hasattr(self, "downsample") else x
+        residual = self.downsample(x)
         out = self.bn1(x)
         out = self.relu(out)
         out = self.conv1(out)
@@ -73,13 +79,15 @@ class ResNet(nn.Module):
         self.avgpool = nn.AdaptiveAvgPool2d(1)
         self.fc = nn.Linear(64, num_classes)
 
+        self.initialize()
+
+    def initialize(self):
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
-                n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
-                m.weight.data.normal_(0, math.sqrt(2. / n))
+                nn.init.kaiming_normal(m.weight)
             elif isinstance(m, nn.BatchNorm2d):
-                m.weight.data.fill_(1)
-                m.bias.data.zero_()
+                nn.init.constant(m.weight, 1)
+                nn.init.constant(m.bias, 0)
 
     def _make_layer(self, block, planes, blocks, stride):
 
@@ -107,41 +115,64 @@ class ResNet(nn.Module):
         return x
 
 
-def resnet20(**kwargs):
-    """Constructs a ResNet-18 model.
+class PreActResNet(ResNet):
+    def __init__(self, block, n_size, num_classes=10):
+        super(PreActResNet, self).__init__(block, n_size, num_classes)
 
-    """
+        self.bn1 = nn.BatchNorm2d(self.inplane)
+        self.initialize()
+
+    def forward(self, x):
+        x = self.conv1(x)
+        x = self.layer1(x)
+        x = self.layer2(x)
+        x = self.layer3(x)
+
+        x = self.bn1(x)
+        x = self.relu(x)
+
+        x = self.avgpool(x)
+        x = x.view(x.size(0), -1)
+        x = self.fc(x)
+
+        return x
+
+
+def resnet20(**kwargs):
     model = ResNet(BasicBlock, 3, **kwargs)
     return model
 
 
 def resnet32(**kwargs):
-    """Constructs a ResNet-34 model.
-
-    """
     model = ResNet(BasicBlock, 5, **kwargs)
     return model
 
 
-def preact_resnet20(**kwargs):
-    """Constructs a ResNet-18 model.
+def resnet56(**kwargs):
+    model = ResNet(BasicBlock, 9, **kwargs)
+    return model
 
-    """
-    model = ResNet(PreActBasicBlock, 3, **kwargs)
+
+def resnet110(**kwargs):
+    model = ResNet(BasicBlock, 18, **kwargs)
+    return model
+
+
+def preact_resnet20(**kwargs):
+    model = PreActResNet(PreActBasicBlock, 3, **kwargs)
     return model
 
 
 def preact_resnet32(**kwargs):
-    """Constructs a ResNet-34 model.
-
-    """
-    model = ResNet(PreActBasicBlock, 5, **kwargs)
+    model = PreActResNet(PreActBasicBlock, 5, **kwargs)
     return model
 
 
-if __name__ == '__main__':
-    import torch
+def preact_resnet56(**kwargs):
+    model = PreActResNet(PreActBasicBlock, 9, **kwargs)
+    return model
 
-    a = resnet20()
-    print(a)
-    a(torch.autograd.Variable(torch.randn(1, 3, 32, 32)))
+
+def preact_resnet110(**kwargs):
+    model = PreActResNet(PreActBasicBlock, 18, **kwargs)
+    return model

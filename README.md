@@ -16,10 +16,13 @@ For SE-Inception-v3, the input size is required to be 299x299 [as original Incep
 
 ## Result
 
-There was a mistake in the SE-block as pointed out in #13 (Thanks @iwoiceshyn), the results below may be different from the results from the current master. I'll experiment the new one soon.
 
 ### Notion
 
+The results below may be different from the results from the current master. I'll experiment the new one soon.
+
+* There was a mistake in the SE-block as pointed out in #13 (Thanks @iwoiceshyn).
+* There was a mistake in the basic bottle.
 
 
 ### SE-ResNet20/Cifar10
