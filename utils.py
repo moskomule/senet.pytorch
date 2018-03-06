@@ -1,5 +1,4 @@
-import os
-
+from pathlib import Path
 import torch
 from torch.autograd import Variable
 from torch.optim import Optimizer
@@ -9,6 +8,7 @@ from tqdm import tqdm
 
 class Trainer(object):
     cuda = torch.cuda.is_available()
+    torch.backends.cudnn.benchmark = True
 
     def __init__(self, model, optimizer, loss_f, save_dir=None, save_freq=5):
         self.model = model
@@ -22,16 +22,16 @@ class Trainer(object):
     def _loop(self, data_loader, is_train=True):
         loop_loss = []
         correct = []
-        for data, target in tqdm(data_loader):
+        for data, target in tqdm(data_loader, ncols=80):
             if self.cuda:
                 data, target = data.cuda(), target.cuda()
             data, target = Variable(data, volatile=not is_train), Variable(target, volatile=not is_train)
-            self.optimizer.zero_grad()
             output = self.model(data)
             loss = self.loss_f(output, target)
             loop_loss.append(loss.data[0] / len(data_loader))
             correct.append(float((output.data.max(1)[1] == target.data).sum()) / len(data_loader.dataset))
             if is_train:
+                self.optimizer.zero_grad()
                 loss.backward()
                 self.optimizer.step()
         mode = "train" if is_train else "test"
@@ -57,12 +57,12 @@ class Trainer(object):
                 self.save(ep)
 
     def save(self, epoch, **kwargs):
-        model_folder = "checkpoints/"
-        model_out_path = model_folder + "model_epoch_{}.pth".format(epoch)
-        state = {"epoch": epoch, "weight": self.model.state_dict()}
-        if not os.path.exists(model_folder):
-            os.makedirs(model_folder)
-        torch.save(state, model_out_path)
+        if self.save_dir is not None:
+            model_out_path = Path(self.save_dir)
+            state = {"epoch": epoch, "weight": self.model.state_dict()}
+            if not model_out_path.exists():
+                model_out_path.exists()
+            torch.save(state, model_out_path / "model_epoch_{}.pth".format(epoch))
 
 
 # copied from pytorch's master

@@ -2,8 +2,6 @@ import math
 
 import torch.nn as nn
 from torchvision.models import ResNet
-from baseline import ResNet as CifarResNet
-from baseline import PreActResNet as CifarPreActResNet
 from se_module import SELayer
 
 
@@ -172,13 +170,27 @@ class CifarSEBasicBlock(nn.Module):
         return out
 
 
-class CifarSEResNet(CifarResNet):
+class CifarSEResNet(nn.Module):
     def __init__(self, block, n_size, num_classes=10, reduction=16):
-        super(CifarSEResNet, self).__init__(block, n_size, num_classes)
+        super(CifarSEResNet, self).__init__()
+        self.inplane = 16
+        self.conv1 = nn.Conv2d(3, self.inplane, kernel_size=3, stride=1, padding=1, bias=False)
+        self.bn1 = nn.BatchNorm2d(self.inplane)
+        self.relu = nn.ReLU(inplace=True)
         self.layer1 = self._make_layer(block, 16, blocks=n_size, stride=1, reduction=reduction)
         self.layer2 = self._make_layer(block, 32, blocks=n_size, stride=2, reduction=reduction)
         self.layer3 = self._make_layer(block, 64, blocks=n_size, stride=2, reduction=reduction)
+        self.avgpool = nn.AdaptiveAvgPool2d(1)
+        self.fc = nn.Linear(64, num_classes)
         self.initialize()
+
+    def initialize(self):
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal(m.weight)
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant(m.weight, 1)
+                nn.init.constant(m.bias, 0)
 
     def _make_layer(self, block, planes, blocks, stride, reduction):
         strides = [stride] + [1] * (blocks - 1)
@@ -205,22 +217,24 @@ class CifarSEResNet(CifarResNet):
         return x
 
 
-class CifarSEPreActResNet(CifarPreActResNet):
+class CifarSEPreActResNet(CifarSEResNet):
     def __init__(self, block, n_size, num_classes=10, reduction=16):
-        super(CifarSEPreActResNet, self).__init__(block, n_size, num_classes)
-        self.layer1 = self._make_layer(block, 16, blocks=n_size, stride=1, reduction=reduction)
-        self.layer2 = self._make_layer(block, 32, blocks=n_size, stride=2, reduction=reduction)
-        self.layer3 = self._make_layer(block, 64, blocks=n_size, stride=2, reduction=reduction)
+        super(CifarSEPreActResNet, self).__init__(block, n_size, num_classes, reduction)
+        self.bn1 = nn.BatchNorm2d(self.inplane)
         self.initialize()
 
-    def _make_layer(self, block, planes, blocks, stride, reduction):
-        strides = [stride] + [1] * (blocks - 1)
-        layers = []
-        for stride in strides:
-            layers.append(block(self.inplane, planes, stride, reduction))
-            self.inplane = planes
+    def forward(self, x):
+        x = self.conv1(x)
+        x = self.layer1(x)
+        x = self.layer2(x)
+        x = self.layer3(x)
 
-        return nn.Sequential(*layers)
+        x = self.bn1(x)
+        x = self.relu(x)
+
+        x = self.avgpool(x)
+        x = x.view(x.size(0), -1)
+        x = self.fc(x)
 
 
 def se_resnet20(**kwargs):
