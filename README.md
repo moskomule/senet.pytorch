@@ -16,22 +16,13 @@ For SE-Inception-v3, the input size is required to be 299x299 [as original Incep
 
 ## Result
 
-
-### Notion
-
-The results below may be different from the results from the current master. I'll experiment the new one soon.
-
-* There was a mistake in the SE-block as pointed out in #13 (Thanks @iwoiceshyn).
-* There was a mistake in the basic bottle.
-
-
 ### SE-ResNet20/Cifar10
 
 ```
 python cifar.py [--baseline]
 ```
 
-|                  | ResNet20       | SE-ResNet20    |
+|                  | ResNet20       | SE-ResNet20 (reduction 4 or 8)    |
 |:-------------    | :------------- | :------------- |
 |max. test accuracy|  92%           | 93%            |
 
