@@ -23,17 +23,14 @@ class SEInception3(nn.Module):
         model.Mixed_7c.add_module("SELayer", SELayer(2048))
 
         self.model = model
-        self._flag = True
 
     def forward(self, x):
-        if self._flag:
-            _, _, h, w = x.size()
-            self._flag = False
-            if (h, w) != (299, 299):
-                raise ValueError("input size must be (299, 299)")
+        _, _, h, w = x.size()
+        if (h, w) != (299, 299):
+            raise ValueError("input size must be (299, 299)")
 
         return self.model(x)
 
 
 def se_inception_v3(**kwargs):
-    return Inception3(**kwargs)
+    return SEInception3(**kwargs)
