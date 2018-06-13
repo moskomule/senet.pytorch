@@ -14,6 +14,13 @@ Now SE-ResNet (18, 34, 50, 101, 152/20, 32) and SE-Inception-v3 are implemented.
 
 For SE-Inception-v3, the input size is required to be 299x299 [as original Inception](https://github.com/tensorflow/models/tree/master/inception).
 
+## Pre-requirements
+
+* Python>=3.6
+* PyTorch>=0.4
+* torchvision
+* tqdm
+
 ## Result
 
 ### SE-ResNet20/Cifar10
