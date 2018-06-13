@@ -1,7 +1,8 @@
 from pathlib import Path
 from se_resnet import se_resnet50
-from utils import Trainer, StepLR
+from utils import Trainer
 
+import torch
 from torch import nn
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
@@ -21,18 +22,18 @@ def get_dataloader(batch_size, root):
     train = datasets.ImageFolder(traindir, transforms.Compose(data_augmentation + to_normalized_tensor))
     val = datasets.ImageFolder(valdir, transforms.Compose(to_normalized_tensor))
     train_loader = DataLoader(
-            train, batch_size=batch_size, shuffle=True, num_workers=8)
+        train, batch_size=batch_size, shuffle=True, num_workers=8)
     test_loader = DataLoader(
-            val, batch_size=batch_size, shuffle=True, num_workers=8)
+        val, batch_size=batch_size, shuffle=True, num_workers=8)
     return train_loader, test_loader
 
 
 def main(batch_size, root):
     train_loader, test_loader = get_dataloader(batch_size, root)
-    _se_resnet = se_resnet50(num_classes=1000)
-    se_resnet = nn.DataParallel(_se_resnet, device_ids=[0, 1])
+    se_resnet = nn.DataParallel(se_resnet50(num_classes=1000),
+                                device_ids=list(range(torch.cuda.device_count())))
     optimizer = optim.SGD(params=se_resnet.parameters(), lr=0.6, momentum=0.9, weight_decay=1e-4)
-    scheduler = StepLR(optimizer, 30, gamma=0.1)
+    scheduler = optim.lr_scheduler.StepLR(optimizer, 30, gamma=0.1)
     trainer = Trainer(se_resnet, optimizer, F.cross_entropy, save_dir=".")
     trainer.loop(100, train_loader, test_loader, scheduler)
 

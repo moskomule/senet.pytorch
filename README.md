@@ -10,9 +10,17 @@ Now SE-ResNet (18, 34, 50, 101, 152/20, 32) and SE-Inception-v3 are implemented.
 * `python imagenet.py IMAGENET_ROOT` runs SE-ResNet50 with ImageNet(2012) dataset.
     + You need to prepare dataset by yourself
     + First download files and then follow the [instruction](https://github.com/facebook/fb.resnet.torch/blob/master/INSTALL.md#download-the-imagenet-dataset).
-    + The number of GPUs and workers, the learning rate is fixed so check and change them if needed.
+    + The number of workers and some hyper parameters are fixed so check and change them if you need.
+    + This script uses all GPUs available. To specify GPUs, use `CUDA_VISIBLE_DEVICES` variable. (e.g. `CUDA_VISIBLE_DEVICES=1,2` to use GPU 1 and 2)
 
-For SE-Inception-v3, the input size is required to be 299x299 [as original Inception](https://github.com/tensorflow/models/tree/master/inception).
+For SE-Inception-v3, the input size is required to be 299x299 [as the original Inception](https://github.com/tensorflow/models/tree/master/inception).
+
+## Pre-requirements
+
+* Python>=3.6
+* PyTorch>=0.4
+* torchvision
+* tqdm
 
 ## Result
 

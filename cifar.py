@@ -6,7 +6,7 @@ from torchvision import datasets, transforms
 
 from se_resnet import se_resnet20
 from baseline import resnet20
-from utils import Trainer, StepLR
+from utils import Trainer
 
 
 def get_dataloader(batch_size, root="~/.torch/data/cifar10"):
@@ -21,12 +21,12 @@ def get_dataloader(batch_size, root="~/.torch/data/cifar10"):
                          transforms.RandomHorizontalFlip()]
 
     train_loader = DataLoader(
-            datasets.CIFAR10(root, train=True, download=True,
-                             transform=transforms.Compose(data_augmentation + to_normalized_tensor)),
-            batch_size=batch_size, shuffle=True)
+        datasets.CIFAR10(root, train=True, download=True,
+                         transform=transforms.Compose(data_augmentation + to_normalized_tensor)),
+        batch_size=batch_size, shuffle=True)
     test_loader = DataLoader(
-            datasets.CIFAR10(root, train=False, transform=transforms.Compose(to_normalized_tensor)),
-            batch_size=batch_size, shuffle=True)
+        datasets.CIFAR10(root, train=False, transform=transforms.Compose(to_normalized_tensor)),
+        batch_size=batch_size, shuffle=True)
     return train_loader, test_loader
 
 
@@ -39,7 +39,7 @@ def main(batch_size, baseline, reduction):
         model = se_resnet20(num_classes=10, reduction=reduction)
     optimizer = optim.SGD(params=model.parameters(), lr=1e-1, momentum=0.9,
                           weight_decay=1e-4)
-    scheduler = StepLR(optimizer, 80, 0.1)
+    scheduler = optim.lr_scheduler.StepLR(optimizer, 80, 0.1)
     trainer = Trainer(model, optimizer, F.cross_entropy)
     trainer.loop(200, train_loader, test_loader, scheduler)
 
