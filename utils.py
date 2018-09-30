@@ -60,5 +60,5 @@ class Trainer(object):
             model_out_path = Path(self.save_dir)
             state = {"epoch": epoch, "weight": self.model.state_dict()}
             if not model_out_path.exists():
-                model_out_path.exists()
+                model_out_path.mkdir()
             torch.save(state, model_out_path / "model_epoch_{}.pth".format(epoch))
