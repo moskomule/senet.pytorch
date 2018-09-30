@@ -1,13 +1,14 @@
 from pathlib import Path
-from se_resnet import se_resnet50
-from utils import Trainer
 
 import torch
-from torch import nn
 import torch.nn.functional as F
-from torch.utils.data import DataLoader
 import torch.optim as optim
+from torch import nn
+from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
+
+from se_resnet import se_resnet50
+from utils import Trainer
 
 
 def get_dataloader(batch_size, root):
@@ -30,9 +31,10 @@ def get_dataloader(batch_size, root):
 
 def main(batch_size, root):
     train_loader, test_loader = get_dataloader(batch_size, root)
+    gpus = list(range(torch.cuda.device_count()))
     se_resnet = nn.DataParallel(se_resnet50(num_classes=1000),
-                                device_ids=list(range(torch.cuda.device_count())))
-    optimizer = optim.SGD(params=se_resnet.parameters(), lr=0.6, momentum=0.9, weight_decay=1e-4)
+                                device_ids=gpus)
+    optimizer = optim.SGD(params=se_resnet.parameters(), lr=0.6 / 1024 * batch_size, momentum=0.9, weight_decay=1e-4)
     scheduler = optim.lr_scheduler.StepLR(optimizer, 30, gamma=0.1)
     trainer = Trainer(se_resnet, optimizer, F.cross_entropy, save_dir=".")
     trainer.loop(100, train_loader, test_loader, scheduler)
