@@ -1,8 +1,6 @@
-import math
-
 import torch.nn as nn
 from torchvision.models import ResNet
-from se_module import SELayer
+from senet.se_module import SELayer
 
 
 def conv3x3(in_planes, out_planes, stride=1):
