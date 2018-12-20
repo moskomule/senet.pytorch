@@ -18,9 +18,13 @@ For SE-Inception-v3, the input size is required to be 299x299 [as the original I
 ## Pre-requirements
 
 * Python>=3.6
-* PyTorch>=0.4
+* PyTorch>=1.0
 * torchvision
-* tqdm
+
+
+### For training
+
+* `pip install git+https://github.com/moskomule/homura`
 
 ## Result
 

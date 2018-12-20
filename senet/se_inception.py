@@ -1,4 +1,4 @@
-from se_module import SELayer
+from senet.se_module import SELayer
 from torch import nn
 from torchvision.models.inception import Inception3
 
