@@ -15,7 +15,7 @@ def get_dataloader(batch_size, root):
     to_normalized_tensor = [transforms.CenterCrop(224),
                             transforms.ToTensor(),
                             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]), ]
-    data_augmentation = [transforms.RandomSizedCrop(224),
+    data_augmentation = [transforms.RandomResizedCrop(224),
                          transforms.RandomHorizontalFlip(), ]
 
     traindir = str(Path(root) / "train")
@@ -37,8 +37,7 @@ def main():
     optimizer = optim.SGD(lr=0.6 / 1024 * args.batch_size, momentum=0.9, weight_decay=1e-4)
     scheduler = lr_scheduler.StepLR(30, gamma=0.1)
     weight_saver = callbacks.WeightSave("checkpoints")
-    tqdm_rep = reporter.TQDMReporter(range(args.epochs), callbacks=[callbacks.LossCallback(),
-                                                                    callbacks.AccuracyCallback])
+    tqdm_rep = reporter.TQDMReporter(range(args.epochs), callbacks=[callbacks.AccuracyCallback()])
 
     trainer = Trainer(se_resnet, optimizer, F.cross_entropy, scheduler=scheduler,
                       callbacks=callbacks.CallbackList(weight_saver, tqdm_rep))

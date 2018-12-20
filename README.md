@@ -15,6 +15,7 @@ Now SE-ResNet (18, 34, 50, 101, 152/20, 32) and SE-Inception-v3 are implemented.
 
 For SE-Inception-v3, the input size is required to be 299x299 [as the original Inception](https://github.com/tensorflow/models/tree/master/inception).
 
+
 ## Pre-requirements
 
 * Python>=3.6
@@ -24,7 +25,20 @@ For SE-Inception-v3, the input size is required to be 299x299 [as the original I
 
 ### For training
 
+To run `cifar.py` or `imagenet.py`, you need
+
 * `pip install git+https://github.com/moskomule/homura`
+
+## hub
+
+You can use some SE-ResNet via `torch.hub`.
+
+```python
+hub_model = torch.hub.load(
+    'moskomule/senet.pytorch',
+    'resnet20',
+    num_classes=10)
+```
 
 ## Result
 

@@ -16,8 +16,7 @@ def main():
         model = se_resnet20(num_classes=10, reduction=args.reduction)
     optimizer = optim.SGD(lr=1e-1, momentum=0.9, weight_decay=1e-4)
     scheduler = lr_scheduler.StepLR(80, 0.1)
-    tqdm_rep = reporter.TQDMReporter(range(args.epochs), callbacks=[callbacks.LossCallback(),
-                                                                    callbacks.AccuracyCallback()])
+    tqdm_rep = reporter.TQDMReporter(range(args.epochs), callbacks=[callbacks.AccuracyCallback()])
     trainer = Trainer(model, optimizer, F.cross_entropy, scheduler=scheduler, callbacks=tqdm_rep)
     for _ in tqdm_rep:
         trainer.train(train_loader)
@@ -28,7 +27,8 @@ if __name__ == '__main__':
     import argparse
 
     p = argparse.ArgumentParser()
-    p.add_argument("--batchsize", type=int, default=64)
+    p.add_argument("--epochs", type=int, default=200)
+    p.add_argument("--batch_size", type=int, default=64)
     p.add_argument("--reduction", type=int, default=16)
     p.add_argument("--baseline", action="store_true")
     args = p.parse_args()
