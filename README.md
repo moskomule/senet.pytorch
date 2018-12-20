@@ -31,7 +31,7 @@ To run `cifar.py` or `imagenet.py`, you need
 
 ## hub
 
-You can use some SE-ResNet (`se_resnet{20, 56, 50, 101}``) via `torch.hub`.
+You can use some SE-ResNet (`se_resnet{20, 56, 50, 101}`) via `torch.hub`.
 
 ```python
 import torch.hub
