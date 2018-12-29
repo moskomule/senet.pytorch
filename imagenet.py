@@ -1,57 +1,66 @@
-from pathlib import Path
-
 import torch
-import torch.nn.functional as F
-from homura import optim, lr_scheduler, callbacks, reporter
-from homura.utils.trainer import SupervisedTrainer as Trainer
-from torch import nn
-from torch.utils.data import DataLoader
-from torchvision import datasets, transforms
-
-from senet.se_resnet import se_resnet50
-
-
-def get_dataloader(batch_size, root):
-    to_normalized_tensor = [transforms.CenterCrop(224),
-                            transforms.ToTensor(),
-                            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]), ]
-    data_augmentation = [transforms.RandomResizedCrop(224),
-                         transforms.RandomHorizontalFlip(), ]
-
-    traindir = str(Path(root) / "train")
-    valdir = str(Path(root) / "val")
-    train = datasets.ImageFolder(traindir, transforms.Compose(data_augmentation + to_normalized_tensor))
-    val = datasets.ImageFolder(valdir, transforms.Compose(to_normalized_tensor))
-    train_loader = DataLoader(
-        train, batch_size=batch_size, shuffle=True, num_workers=8)
-    test_loader = DataLoader(
-        val, batch_size=batch_size, shuffle=True, num_workers=8)
-    return train_loader, test_loader
+from homura import optim, lr_scheduler
+from homura.utils import callbacks, reporter
+from homura.utils.trainer import SupervisedTrainer, DistributedSupervisedTrainer
+from homura.vision.data import imagenet_loaders
+from torch.nn import functional as F
+from torchvision.models import resnet50
 
 
 def main():
-    train_loader, test_loader = get_dataloader(args.batch_size, args.root)
-    gpus = list(range(torch.cuda.device_count()))
-    se_resnet = nn.DataParallel(se_resnet50(num_classes=1000),
-                                device_ids=gpus)
-    optimizer = optim.SGD(lr=0.6 / 1024 * args.batch_size, momentum=0.9, weight_decay=1e-4)
-    scheduler = lr_scheduler.StepLR(30, gamma=0.1)
-    weight_saver = callbacks.WeightSave("checkpoints")
-    tqdm_rep = reporter.TQDMReporter(range(args.epochs), callbacks=[callbacks.AccuracyCallback()])
+    model = resnet50()
 
-    trainer = Trainer(se_resnet, optimizer, F.cross_entropy, scheduler=scheduler,
-                      callbacks=callbacks.CallbackList(weight_saver, tqdm_rep))
-    for _ in tqdm_rep:
+    optimizer = optim.SGD(lr=0.6 / 1024 * args.batch_size, momentum=0.9,
+                          weight_decay=1e-4)
+    scheduler = lr_scheduler.MultiStepLR([50, 70])
+
+    c = [callbacks.AccuracyCallback(), callbacks.LossCallback()]
+    r = reporter.TQDMReporter(range(args.epochs), callbacks=c)
+    tb = reporter.TensorboardReporter(c)
+    rep = callbacks.CallbackList(r, tb, callbacks.WeightSave("checkpoints"))
+
+    if args.distributed:
+        # DistributedSupervisedTrainer sets up torch.distributed
+        if args.local_rank == 0:
+            print("\nuse DistributedDataParallel")
+        trainer = DistributedSupervisedTrainer(model, optimizer, F.cross_entropy, callbacks=rep, scheduler=scheduler,
+                                               init_method=args.init_method, backend=args.backend)
+    else:
+        multi_gpus = torch.cuda.device_count() > 1
+        if multi_gpus:
+            print("\nuse DataParallel")
+        trainer = SupervisedTrainer(model, optimizer, F.cross_entropy, callbacks=rep,
+                                    scheduler=scheduler, data_parallel=multi_gpus)
+    # if distributed, need to setup loaders after DistributedSupervisedTrainer
+    train_loader, test_loader = imagenet_loaders(args.root, args.batch_size, distributed=args.distributed,
+                                                 num_train_samples=args.batch_size * 10 if args.debug else None,
+                                                 num_test_samples=args.batch_size * 10 if args.debug else None)
+    for _ in r:
         trainer.train(train_loader)
         trainer.test(test_loader)
 
 
 if __name__ == '__main__':
-    import argparse
+    import miniargs
+    import warnings
 
-    p = argparse.ArgumentParser()
-    p.add_argument("root", help="imagenet data root")
-    p.add_argument("--batch_size", default=128, type=int)
-    p.add_argument("--epochs", default=90, type=int)
-    args = p.parse_args()
+    warnings.filterwarnings("ignore", "(Possibly )?corrupt EXIF data", UserWarning)
+
+    p = miniargs.ArgumentParser()
+    p.add_str("root")
+    p.add_int("--epochs", default=90)
+    p.add_int("--batch_size", default=128)
+    p.add_true("--distributed")
+    p.add_int("--local_rank", default=-1)
+    p.add_str("--init_method", default="env://")
+    p.add_str("--backend", default="nccl")
+    p.add_true("--debug", help="Use less images and less epochs")
+    args, _else = p.parse(return_unknown=True)
+    num_device = torch.cuda.device_count()
+
+    print(args)
+    if args.distributed and args.local_rank == -1:
+        raise RuntimeError(
+            f"For distributed training, use python -m torch.distributed.launch "
+            f"--nproc_per_node={num_device} {__file__} {args.root} ...")
     main()
