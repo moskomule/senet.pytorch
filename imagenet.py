@@ -4,13 +4,14 @@ from homura.utils import callbacks, reporter
 from homura.utils.trainer import SupervisedTrainer, DistributedSupervisedTrainer
 from homura.vision.data import imagenet_loaders
 from torch.nn import functional as F
-from torchvision.models import resnet50
+
+from senet.se_resnet import se_resnet50
 
 
 def main():
-    model = resnet50()
+    model = se_resnet50(num_classes=1000)
 
-    optimizer = optim.SGD(lr=0.6 / 1024 * args.batch_size, momentum=0.9,
+    optimizer = optim.SGD(lr=1e-1 * num_device, momentum=0.9,
                           weight_decay=1e-4)
     scheduler = lr_scheduler.MultiStepLR([50, 70])
 
