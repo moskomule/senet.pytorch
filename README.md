@@ -55,16 +55,16 @@ python cifar.py [--baseline]
 
 ### SE-ResNet50/ImageNet
 
-*The initial learning rate and mini-batch size are different from the original version because of my computational resource* (0.6 to 0.1 and 1024 to 128 respectively).
+*The initial learning rate and mini-batch size are different from the original version because of my computational resource* .
 
 |                  | ResNet         | SE-ResNet      |
 |:-------------    | :------------- | :------------- |
-|max. test accuracy(top1)|  79.26 %(*)             | 71.66 %(**)          |
+|max. test accuracy(top1)|  76.15 %(*)             | -- (**)          |
 
 
-+ (*): He, K., Zhang, X., Ren, S., & Sun, J. (2015). Deep Residual Learning for Image Recognition.
++ (*): [ResNet-50 in torchvision](https://pytorch.org/docs/stable/torchvision/models.html)
 
-+ (**): I share [this weight (training after 100 epochs)](https://drive.google.com/file/d/1WhBKRKIRtd-Fsrj3hx_WNycdsZSbC9Ep).
++ (**): When using `imagenet.py` in the `--distributed` setting on 8 GPUs. The weight will be available soon.
 
 ```python
 senet = se_resnet50(num_classes=1000)
