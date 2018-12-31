@@ -11,8 +11,7 @@ from senet.se_resnet import se_resnet50
 def main():
     model = se_resnet50(num_classes=1000)
 
-    optimizer = optim.SGD(lr=1e-1 * num_device, momentum=0.9,
-                          weight_decay=1e-4)
+    optimizer = optim.SGD(lr=0.6 / 1024 * args.batch_size, momentum=0.9, weight_decay=1e-4)
     scheduler = lr_scheduler.MultiStepLR([50, 70])
 
     c = [callbacks.AccuracyCallback(), callbacks.LossCallback()]
