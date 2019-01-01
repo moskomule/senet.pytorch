@@ -59,12 +59,12 @@ python cifar.py [--baseline]
 
 |                  | ResNet         | SE-ResNet      |
 |:-------------    | :------------- | :------------- |
-|max. test accuracy(top1)|  76.15 %(*)             | -- (**)          |
+|max. test accuracy(top1)|  76.15 %(*)             | 77.06% (**)          |
 
 
 + (*): [ResNet-50 in torchvision](https://pytorch.org/docs/stable/torchvision/models.html)
 
-+ (**): When using `imagenet.py` in the `--distributed` setting on 8 GPUs. The weight will be available soon.
++ (**): When using `imagenet.py` with the `--distributed` setting on 8 GPUs. The weight will be available soon.
 
 ```python
 senet = se_resnet50(num_classes=1000)
