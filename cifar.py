@@ -17,7 +17,7 @@ def main():
     optimizer = optim.SGD(lr=1e-1, momentum=0.9, weight_decay=1e-4)
     scheduler = lr_scheduler.StepLR(80, 0.1)
     tqdm_rep = reporter.TQDMReporter(range(args.epochs), callbacks=[callbacks.AccuracyCallback()])
-    trainer = Trainer(model, optimizer, F.cross_entropy, scheduler=scheduler, callbacks=tqdm_rep)
+    trainer = Trainer(model, optimizer, F.cross_entropy, scheduler=scheduler, callbacks=[tqdm_rep])
     for _ in tqdm_rep:
         trainer.train(train_loader)
         trainer.test(test_loader)
