@@ -64,7 +64,7 @@ python cifar.py [--baseline]
 
 + (*): [ResNet-50 in torchvision](https://pytorch.org/docs/stable/torchvision/models.html)
 
-+ (**): When using `imagenet.py` with the `--distributed` setting on 8 GPUs. The weight will be available soon.
++ (**): When using `imagenet.py` with the `--distributed` setting on 8 GPUs. The weight is [available](https://www.dropbox.com/s/xpq8ne7rwa4kg4c/seresnet50-f6e7c9de8bf52b5.pkl).
 
 ```python
 senet = se_resnet50(num_classes=1000)
