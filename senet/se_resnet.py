@@ -1,4 +1,5 @@
 import torch.nn as nn
+import torch.utils.model_zoo as model_zoo
 from torchvision.models import ResNet
 from senet.se_module import SELayer
 
@@ -103,7 +104,7 @@ def se_resnet34(num_classes):
     return model
 
 
-def se_resnet50(num_classes):
+def se_resnet50(num_classes, pretrained=False):
     """Constructs a ResNet-50 model.
 
     Args:
@@ -111,6 +112,8 @@ def se_resnet50(num_classes):
     """
     model = ResNet(SEBottleneck, [3, 4, 6, 3], num_classes=num_classes)
     model.avgpool = nn.AdaptiveAvgPool2d(1)
+    if pretrained:
+        model.load_state_dict(model_zoo.load_url("https://www.dropbox.com/s/xpq8ne7rwa4kg4c/seresnet50-f6e7c9de8bf52b5.pkl"))
     return model
 
 

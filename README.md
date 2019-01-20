@@ -41,6 +41,16 @@ hub_model = torch.hub.load(
     num_classes=10)
 ```
 
+Also, a pretrained SE-ResNet50 model is available.
+
+```python
+import torch.hub
+hub_model = torch.hub.load(
+    'moskomule/senet.pytorch',
+    'se_resnet50',
+    pretrained=True,)
+ ```
+
 ## Result
 
 ### SE-ResNet20/Cifar10
