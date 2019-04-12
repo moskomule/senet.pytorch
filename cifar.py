@@ -1,6 +1,6 @@
 import torch.nn.functional as F
-from homura import optim, lr_scheduler, callbacks, reporter
-from homura.utils.trainer import SupervisedTrainer as Trainer
+from homura import optim, lr_scheduler, callbacks, reporters
+from homura.trainers import SupervisedTrainer as Trainer
 from homura.vision.data.loaders import cifar10_loaders
 
 from senet.baseline import resnet20
@@ -16,7 +16,7 @@ def main():
         model = se_resnet20(num_classes=10, reduction=args.reduction)
     optimizer = optim.SGD(lr=1e-1, momentum=0.9, weight_decay=1e-4)
     scheduler = lr_scheduler.StepLR(80, 0.1)
-    tqdm_rep = reporter.TQDMReporter(range(args.epochs), callbacks=[callbacks.AccuracyCallback()])
+    tqdm_rep = reporters.TQDMReporter(range(args.epochs), callbacks=[callbacks.AccuracyCallback()])
     trainer = Trainer(model, optimizer, F.cross_entropy, scheduler=scheduler, callbacks=[tqdm_rep])
     for _ in tqdm_rep:
         trainer.train(train_loader)
