@@ -1,7 +1,7 @@
 import torch
 from homura import optim, lr_scheduler
-from homura.utils import callbacks, reporter
-from homura.utils.trainer import SupervisedTrainer, DistributedSupervisedTrainer
+from homura.utils import callbacks, reporters
+from homura.trainers import SupervisedTrainer, DistributedSupervisedTrainer
 from homura.vision.data import imagenet_loaders
 from torch.nn import functional as F
 
@@ -15,8 +15,8 @@ def main():
     scheduler = lr_scheduler.MultiStepLR([50, 70])
 
     c = [callbacks.AccuracyCallback(), callbacks.LossCallback()]
-    r = reporter.TQDMReporter(range(args.epochs), callbacks=c)
-    tb = reporter.TensorboardReporter(c)
+    r = reporters.TQDMReporter(range(args.epochs), callbacks=c)
+    tb = reporters.TensorboardReporter(c)
     rep = callbacks.CallbackList(r, tb, callbacks.WeightSave("checkpoints"))
 
     if args.distributed:
