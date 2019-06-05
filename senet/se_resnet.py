@@ -1,5 +1,5 @@
 import torch.nn as nn
-import torch.utils.model_zoo as model_zoo
+from torch.hub import load_state_dict_from_url
 from torchvision.models import ResNet
 from senet.se_module import SELayer
 
@@ -11,7 +11,9 @@ def conv3x3(in_planes, out_planes, stride=1):
 class SEBasicBlock(nn.Module):
     expansion = 1
 
-    def __init__(self, inplanes, planes, stride=1, downsample=None, reduction=16):
+    def __init__(self, inplanes, planes, stride=1, downsample=None, groups=1,
+                 base_width=64, dilation=1, norm_layer=None,
+                 *, reduction=16):
         super(SEBasicBlock, self).__init__()
         self.conv1 = conv3x3(inplanes, planes, stride)
         self.bn1 = nn.BatchNorm2d(planes)
@@ -44,7 +46,9 @@ class SEBasicBlock(nn.Module):
 class SEBottleneck(nn.Module):
     expansion = 4
 
-    def __init__(self, inplanes, planes, stride=1, downsample=None, reduction=16):
+    def __init__(self, inplanes, planes, stride=1, downsample=None, groups=1,
+                 base_width=64, dilation=1, norm_layer=None,
+                 *, reduction=16):
         super(SEBottleneck, self).__init__()
         self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=1, bias=False)
         self.bn1 = nn.BatchNorm2d(planes)
@@ -113,7 +117,8 @@ def se_resnet50(num_classes=1_000, pretrained=False):
     model = ResNet(SEBottleneck, [3, 4, 6, 3], num_classes=num_classes)
     model.avgpool = nn.AdaptiveAvgPool2d(1)
     if pretrained:
-        model.load_state_dict(model_zoo.load_url("https://www.dropbox.com/s/xpq8ne7rwa4kg4c/seresnet50-60a8950a85b2b.pkl"))
+        model.load_state_dict(load_state_dict_from_url(
+            "https://www.dropbox.com/s/xpq8ne7rwa4kg4c/seresnet50-60a8950a85b2b.pkl"))
     return model
 
 
@@ -175,12 +180,16 @@ class CifarSEResNet(nn.Module):
     def __init__(self, block, n_size, num_classes=10, reduction=16):
         super(CifarSEResNet, self).__init__()
         self.inplane = 16
-        self.conv1 = nn.Conv2d(3, self.inplane, kernel_size=3, stride=1, padding=1, bias=False)
+        self.conv1 = nn.Conv2d(
+            3, self.inplane, kernel_size=3, stride=1, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(self.inplane)
         self.relu = nn.ReLU(inplace=True)
-        self.layer1 = self._make_layer(block, 16, blocks=n_size, stride=1, reduction=reduction)
-        self.layer2 = self._make_layer(block, 32, blocks=n_size, stride=2, reduction=reduction)
-        self.layer3 = self._make_layer(block, 64, blocks=n_size, stride=2, reduction=reduction)
+        self.layer1 = self._make_layer(
+            block, 16, blocks=n_size, stride=1, reduction=reduction)
+        self.layer2 = self._make_layer(
+            block, 32, blocks=n_size, stride=2, reduction=reduction)
+        self.layer3 = self._make_layer(
+            block, 64, blocks=n_size, stride=2, reduction=reduction)
         self.avgpool = nn.AdaptiveAvgPool2d(1)
         self.fc = nn.Linear(64, num_classes)
         self.initialize()
@@ -220,7 +229,8 @@ class CifarSEResNet(nn.Module):
 
 class CifarSEPreActResNet(CifarSEResNet):
     def __init__(self, block, n_size, num_classes=10, reduction=16):
-        super(CifarSEPreActResNet, self).__init__(block, n_size, num_classes, reduction)
+        super(CifarSEPreActResNet, self).__init__(
+            block, n_size, num_classes, reduction)
         self.bn1 = nn.BatchNorm2d(self.inplane)
         self.initialize()
 
