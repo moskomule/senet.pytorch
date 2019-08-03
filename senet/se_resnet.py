@@ -118,7 +118,7 @@ def se_resnet50(num_classes=1_000, pretrained=False):
     model.avgpool = nn.AdaptiveAvgPool2d(1)
     if pretrained:
         model.load_state_dict(load_state_dict_from_url(
-            "https://www.dropbox.com/s/xpq8ne7rwa4kg4c/seresnet50-60a8950a85b2b.pkl"))
+            "https://github.com/moskomule/senet.pytorch/releases/download/archive/seresnet50-60a8950a85b2b.pkl"))
     return model
 
 
