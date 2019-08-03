@@ -20,7 +20,7 @@ For SE-Inception-v3, the input size is required to be 299x299 [as the original I
 
 * Python>=3.6
 * PyTorch>=1.0
-* torchvision
+* torchvision>=0.3
 
 
 ### For training
@@ -74,11 +74,13 @@ python cifar.py [--baseline]
 
 + (*): [ResNet-50 in torchvision](https://pytorch.org/docs/stable/torchvision/models.html)
 
-+ (**): When using `imagenet.py` with the `--distributed` setting on 8 GPUs. The weight is [available](https://www.dropbox.com/s/xpq8ne7rwa4kg4c/seresnet50-f6e7c9de8bf52b5.pkl).
++ (**): When using `imagenet.py` with the `--distributed` setting on 8 GPUs. The weight is [available](https://github.com/moskomule/senet.pytorch/releases/download/archive/seresnet50-60a8950a85b2b.pkl).
 
 ```python
+# !wget https://github.com/moskomule/senet.pytorch/releases/download/archive/seresnet50-60a8950a85b2b.pkl
+
 senet = se_resnet50(num_classes=1000)
-senet.load_state_dict(torch.load("weight.pkl"))
+senet.load_state_dict(torch.load("seresnet50-60a8950a85b2b.pkl"))
 ```
 
 ## References
