@@ -27,7 +27,7 @@ For SE-Inception-v3, the input size is required to be 299x299 [as the original I
 
 To run `cifar.py` or `imagenet.py`, you need
 
-* `pip install git+https://github.com/moskomule/homura@v0.6`
+* `pip install git+https://github.com/moskomule/homura`
 * `pip install miniargs`
 
 ## hub
