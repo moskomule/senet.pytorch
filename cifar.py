@@ -16,11 +16,12 @@ def main():
         model = se_resnet20(num_classes=10, reduction=args.reduction)
     optimizer = optim.SGD(lr=1e-1, momentum=0.9, weight_decay=1e-4)
     scheduler = lr_scheduler.StepLR(80, 0.1)
-    tqdm_rep = reporters.TQDMReporter(range(args.epochs), callbacks=[callbacks.AccuracyCallback()])
-    trainer = Trainer(model, optimizer, F.cross_entropy, scheduler=scheduler, callbacks=[tqdm_rep])
-    for _ in tqdm_rep:
-        trainer.train(train_loader)
-        trainer.test(test_loader)
+    tqdm_rep = reporters.TQDMReporter(range(args.epochs))
+    _callbacks = [tqdm_rep, callbacks.AccuracyCallback()]
+    with Trainer(model, optimizer, F.cross_entropy, scheduler=scheduler, callbacks=_callbacks) as trainer:
+        for _ in tqdm_rep:
+            trainer.train(train_loader)
+            trainer.test(test_loader)
 
 
 if __name__ == '__main__':
