@@ -15,7 +15,7 @@ from senet.se_module import SELayer
 class SEGoogLeNet(nn.Module):
     def __init__(self, num_classes, pretrained, aux_logits=True, transform_input=False):
         super(SEGoogLeNet, self).__init__()
-        #Pretrain and customize classifier
+        #Pretrain and customize classifier test
         model = googlenet(pretrained = pretrained, aux_logits = aux_logits, transform_input = transform_input)
         in_c = model.fc.in_features
         model.fc = nn.Linear(in_c, num_classes)
