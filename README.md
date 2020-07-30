@@ -14,7 +14,6 @@ Now SE-ResNet (18, 34, 50, 101, 152/20, 32) and SE-Inception-v3 are implemented.
 
 For SE-Inception-v3, the input size is required to be 299x299 [as the original Inception](https://github.com/tensorflow/models/tree/master/inception).
 
-
 ## Pre-requirements
 
 The codebase is tested on the following setting.
@@ -59,11 +58,19 @@ hub_model = torch.hub.load(
 python cifar.py [--baseline]
 ```
 
+Note that the CIFAR-10 dataset expected to be under `~/.torch/data`.
+
 |                  | ResNet20       | SE-ResNet20 (reduction 4 or 8)    |
 |:-------------    | :------------- | :------------- |
 |max. test accuracy|  92%           | 93%            |
 
 ### SE-ResNet50/ImageNet
+
+```
+python [-m torch.distributed.launch --nproc_per_node=${NUM_GPUS}] imagenet.py
+```
+
+The option [-m ...] is for distributed training. Note that the Imagenet dataset is expected to be under `~/.torch/data` or specified as `IMAGENET_ROOT=${PATH_TO_IMAGENET}`.
 
 *The initial learning rate and mini-batch size are different from the original version because of my computational resource* .
 
@@ -85,7 +92,7 @@ senet.load_state_dict(torch.load("seresnet50-60a8950a85b2b.pkl"))
 
 ## Contribution
 
-Contribution is welcome. Feel free to send PR and issues.
+I cannot maintain this repository actively, but any contributions are welcome. Feel free to send PRs and issues.
 
 ## References
 
