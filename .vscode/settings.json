@@ -1,0 +1,4 @@
+{
+    "python.pythonPath": "/Users/mosko/.miniconda/envs/homura/bin/python",
+    "python.formatting.provider": "black"
+}

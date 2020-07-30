@@ -2,7 +2,6 @@
 
 An implementation of SENet, proposed in **Squeeze-and-Excitation Networks** by Jie Hu, Li Shen and Gang Sun, who are the winners of ILSVRC 2017 classification competition.
 
-
 Now SE-ResNet (18, 34, 50, 101, 152/20, 32) and SE-Inception-v3 are implemented.
 
 * `python cifar.py` runs SE-ResNet20 with Cifar10 dataset.
@@ -18,17 +17,17 @@ For SE-Inception-v3, the input size is required to be 299x299 [as the original I
 
 ## Pre-requirements
 
-* Python>=3.6
-* PyTorch>=1.0
-* torchvision>=0.3
+The codebase is tested on the following setting.
 
+* Python>=3.8
+* PyTorch>=1.6.0
+* torchvision>=0.7
 
 ### For training
 
 To run `cifar.py` or `imagenet.py`, you need
 
-* `pip install git+https://github.com/moskomule/homura`
-* `pip install miniargs`
+* `pip install git+https://github.com/moskomule/homura@2020.05`
 
 ## hub
 
@@ -83,6 +82,11 @@ python cifar.py [--baseline]
 senet = se_resnet50(num_classes=1000)
 senet.load_state_dict(torch.load("seresnet50-60a8950a85b2b.pkl"))
 ```
+
+
+## Contribution
+
+Contribution is welcome. Feel free to send PR and issues.
 
 ## References
 

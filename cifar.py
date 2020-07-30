@@ -1,19 +1,20 @@
 import torch.nn.functional as F
-from homura import optim, lr_scheduler, callbacks, reporters
-from homura.trainers import SupervisedTrainer as Trainer
-from homura.vision.data.loaders import cifar10_loaders
 
+from homura import callbacks, lr_scheduler, optim, reporters
+from homura.trainers import SupervisedTrainer as Trainer
+from homura.vision import DATASET_REGISTRY
 from senet.baseline import resnet20
 from senet.se_resnet import se_resnet20
 
 
 def main():
-    train_loader, test_loader = cifar10_loaders(args.batch_size)
+    train_loader, test_loader = DATASET_REGISTRY("cifar10")(args.batch_size)
 
     if args.baseline:
         model = resnet20()
     else:
         model = se_resnet20(num_classes=10, reduction=args.reduction)
+
     optimizer = optim.SGD(lr=1e-1, momentum=0.9, weight_decay=1e-4)
     scheduler = lr_scheduler.StepLR(80, 0.1)
     tqdm_rep = reporters.TQDMReporter(range(args.epochs))
@@ -24,7 +25,7 @@ def main():
             trainer.test(test_loader)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import argparse
 
     p = argparse.ArgumentParser()
