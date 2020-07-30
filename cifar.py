@@ -8,7 +8,7 @@ from senet.se_resnet import se_resnet20
 
 
 def main():
-    train_loader, test_loader = DATASET_REGISTRY("cifar10")(args.batch_size)
+    train_loader, test_loader = DATASET_REGISTRY("cifar10")(args.batch_size, num_workers=args.num_workers)
 
     if args.baseline:
         model = resnet20()
@@ -32,6 +32,7 @@ if __name__ == "__main__":
     p.add_argument("--epochs", type=int, default=200)
     p.add_argument("--batch_size", type=int, default=64)
     p.add_argument("--reduction", type=int, default=16)
+    p.add_argument("--num_workers", type=int, default=4)
     p.add_argument("--baseline", action="store_true")
     args = p.parse_args()
     main()

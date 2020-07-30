@@ -6,8 +6,8 @@ Now SE-ResNet (18, 34, 50, 101, 152/20, 32) and SE-Inception-v3 are implemented.
 
 * `python cifar.py` runs SE-ResNet20 with Cifar10 dataset.
 
-* `python imagenet.py IMAGENET_ROOT` runs SE-ResNet50 with ImageNet(2012) dataset.
-    + You need to prepare dataset by yourself
+* `python imagenet.py` and `python -m torch.distributed.launch --nproc_per_node=${NUM_GPUS} imagenet.py` run SE-ResNet50 with ImageNet(2012) dataset,
+    + You need to prepare dataset by yourself in `~/.torch/data` or set an enviroment variable `IMAGENET_ROOT=${PATH_TO_YOUR_IMAGENET}`
     + First download files and then follow the [instruction](https://github.com/facebook/fb.resnet.torch/blob/master/INSTALL.md#download-the-imagenet-dataset).
     + The number of workers and some hyper parameters are fixed so check and change them if you need.
     + This script uses all GPUs available. To specify GPUs, use `CUDA_VISIBLE_DEVICES` variable. (e.g. `CUDA_VISIBLE_DEVICES=1,2` to use GPU 1 and 2)
@@ -82,7 +82,6 @@ python cifar.py [--baseline]
 senet = se_resnet50(num_classes=1000)
 senet.load_state_dict(torch.load("seresnet50-60a8950a85b2b.pkl"))
 ```
-
 
 ## Contribution
 
