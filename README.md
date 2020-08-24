@@ -26,7 +26,7 @@ The codebase is tested on the following setting.
 
 To run `cifar.py` or `imagenet.py`, you need
 
-* `pip install git+https://github.com/moskomule/homura@2020.05`
+* `pip install git+https://github.com/moskomule/homura@v2020.05`
 
 ## hub
 
