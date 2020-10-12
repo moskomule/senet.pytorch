@@ -1,3 +1,4 @@
+from os import linesep
 import torch.nn as nn
 from torch.hub import load_state_dict_from_url
 from torchvision.models import ResNet
@@ -114,11 +115,16 @@ def se_resnet50(num_classes=1_000, pretrained=False):
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
-    model = ResNet(SEBottleneck, [3, 4, 6, 3], num_classes=num_classes)
+    if not pretrained:
+        model = ResNet(SEBottleneck, [3, 4, 6, 3], num_classes=num_classes)
+    else:
+        model = ResNet(SEBottleneck, [3, 4, 6, 3], num_classes=1000)
     model.avgpool = nn.AdaptiveAvgPool2d(1)
     if pretrained:
         model.load_state_dict(load_state_dict_from_url(
             "https://github.com/moskomule/senet.pytorch/releases/download/archive/seresnet50-60a8950a85b2b.pkl"))
+        fc = model.fc
+        model.fc = nn.Linear(fc.in_features, num_classes, bias=True)
     return model
 
 
