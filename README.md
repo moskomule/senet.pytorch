@@ -50,7 +50,7 @@ hub_model = torch.hub.load(
     pretrained=True,)
  ```
 
-## Result
+## Results
 
 ### SE-ResNet20/Cifar10
 
